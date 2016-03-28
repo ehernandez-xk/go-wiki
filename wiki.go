@@ -14,8 +14,13 @@ import (
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	//removes /view/ from the path
 	title := r.URL.Path[len("/view/"):]
-	p, _ := loadPage(title)
-	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
+	p, err := loadPage(title)
+	if err != nil {
+		fmt.Fprintf(w, "<h3>Error loading page</h3><div>%s</div>", p.Title)
+	}
+	//Using template
+	t, _ := template.ParseFiles("view.html")
+	t.Execute(w, p)
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +72,7 @@ func main() {
 	http.HandleFunc("/save/", saveHandler)
 	http.ListenAndServe(":8080", nil)
 
-	// run the program http://localhost:8080/edit/TestPage
-	// to see: a form to edit the page using /save/ handler
+	// run the program http://localhost:8080/view/TestPage
+	// to see: the new template of view
 
 }
