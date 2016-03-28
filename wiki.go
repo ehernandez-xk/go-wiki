@@ -10,6 +10,12 @@ import (
 	"net/http"
 )
 
+// To render the templates
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+	t, _ := template.ParseFiles(tmpl + ".html")
+	t.Execute(w, p)
+}
+
 //My own view handler
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	//removes /view/ from the path
@@ -19,8 +25,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "<h3>Error loading page</h3><div>%s</div>", p.Title)
 	}
 	//Using template
-	t, _ := template.ParseFiles("view.html")
-	t.Execute(w, p)
+	renderTemplate(w, "view", p)
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,13 +35,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 		p = &Page{Title: title}
 	}
 	//Using template
-	//template.ParseFiles will read the contetns of edit.html and return a *template
-	t, _ := template.ParseFiles("edit.html")
-	//Executes the template, writing the generated HTML to the http.ResponseWriter
-	// .Title and .Body
-	t.Execute(w, p)
-	//Template directives are enclosed in double curly braces. The printf "%s" .Body instruction
-	//is a function call that outputs .Body as a string instead of a stream of bytes
+	renderTemplate(w, "edit", p)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
