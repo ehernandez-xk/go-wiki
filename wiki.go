@@ -22,7 +22,9 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
 	p, err := loadPage(title)
 	if err != nil {
-		fmt.Fprintf(w, "<h3>Error loading page</h3><div>%s</div>", title)
+		// If the page doesn¡t exist redirect to /edit/ page
+		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
+		return
 	}
 	//Using template
 	renderTemplate(w, "view", p)
@@ -71,7 +73,8 @@ func main() {
 	http.HandleFunc("/save/", saveHandler)
 	http.ListenAndServe(":8080", nil)
 
-	// run the program http://localhost:8080/view/TestPage
-	// to see: the new template of view
+	// when xxx doesn't not exist
+	// run the program http://localhost:8080/view/xxxxx
+	// to see: The redirect is called to the /edit/ page.
 
 }
