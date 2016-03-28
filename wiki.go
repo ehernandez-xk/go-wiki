@@ -9,6 +9,8 @@ import (
 	"net/http"
 )
 
+//Initial tamplates, Then we can use the ExecuteTemplate method to render a
+//specific template.
 var templates = template.Must(template.ParseFiles("edit.html", "view.html"))
 
 // To render the templates
