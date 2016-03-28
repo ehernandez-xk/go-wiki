@@ -17,6 +17,25 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
 }
 
+func editHandler(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Path[len("/edit/"):]
+	p, err := loadPage(title)
+	if err != nil {
+		p = &Page{Title: title}
+	}
+	//Sends html with a form to edit the body.(html here is to ugly)
+	fmt.Fprintf(w, "<h1>Editing %s</h1>"+
+		"<form action=\"/save/%s\" method=\"POST\">"+
+		"<textarea name=\"body\">%s</textarea><br>"+
+		"<input type=\"submit\" value=\"Save\">"+
+		"</form>",
+		p.Title, p.Title, p.Body)
+}
+
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Put logic here to save")
+}
+
 //Page represents a page of the wiki
 type Page struct {
 	Title string
@@ -42,9 +61,11 @@ func loadPage(title string) (*Page, error) {
 
 func main() {
 	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/edit/", editHandler)
+	http.HandleFunc("/save/", saveHandler)
 	http.ListenAndServe(":8080", nil)
 
-	// run the program http://localhost:8080/view/TestPage
-	// to see: TestPage this is a sample page, cool
+	// run the program http://localhost:8080/edit/TestPage
+	// to see: a form to edit the page using /save/ handler
 
 }
