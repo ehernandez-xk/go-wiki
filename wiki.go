@@ -6,7 +6,16 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 )
+
+//My own handler
+func myhandler(w http.ResponseWriter, r *http.Request) {
+	//If I use r.URL.Path the path comes with /dogs
+	//instead of I use [1:] to ignore the slash
+	//Fprint helps to write to the response
+	fmt.Fprintf(w, "Hi there, I love %s", r.URL.Path[1:])
+}
 
 //Page represents a page of the wiki
 type Page struct {
@@ -32,10 +41,10 @@ func loadPage(title string) (*Page, error) {
 }
 
 func main() {
-	//Create a page and save it
-	p1 := &Page{Title: "TestPage", Body: []byte("this is a sample page, cool ")}
-	p1.save()
-	//Load the page
-	p2, _ := loadPage(p1.Title)
-	fmt.Println(string(p2.Body))
+	http.HandleFunc("/", myhandler)
+	http.ListenAndServe(":8080", nil)
+
+	// run the program http://localhost:8080/dogs
+	// to see: Hi there, I love dogs
+
 }
