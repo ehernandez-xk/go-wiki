@@ -22,7 +22,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/view/"):]
 	p, err := loadPage(title)
 	if err != nil {
-		fmt.Fprintf(w, "<h3>Error loading page</h3><div>%s</div>", p.Title)
+		fmt.Fprintf(w, "<h3>Error loading page</h3><div>%s</div>", title)
 	}
 	//Using template
 	renderTemplate(w, "view", p)
