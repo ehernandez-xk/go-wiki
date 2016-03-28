@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 )
@@ -23,13 +24,14 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		p = &Page{Title: title}
 	}
-	//Sends html with a form to edit the body.(html here is to ugly)
-	fmt.Fprintf(w, "<h1>Editing %s</h1>"+
-		"<form action=\"/save/%s\" method=\"POST\">"+
-		"<textarea name=\"body\">%s</textarea><br>"+
-		"<input type=\"submit\" value=\"Save\">"+
-		"</form>",
-		p.Title, p.Title, p.Body)
+	//Using template
+	//template.ParseFiles will read the contetns of edit.html and return a *template
+	t, _ := template.ParseFiles("edit.html")
+	//Executes the template, writing the generated HTML to the http.ResponseWriter
+	// .Title and .Body
+	t.Execute(w, p)
+	//Template directives are enclosed in double curly braces. The printf "%s" .Body instruction
+	//is a function call that outputs .Body as a string instead of a stream of bytes
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
