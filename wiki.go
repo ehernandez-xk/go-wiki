@@ -4,7 +4,6 @@ The tutorial https://golang.org/doc/articles/wiki/
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -41,7 +40,11 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Put logic here to save")
+	title := r.URL.Path[len("/save/"):]
+	body := r.FormValue("body")
+	p := &Page{Title: title, Body: []byte(body)}
+	p.save()
+	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 }
 
 //Page represents a page of the wiki
@@ -75,6 +78,6 @@ func main() {
 
 	// when xxx doesn't not exist
 	// run the program http://localhost:8080/view/xxxxx
-	// to see: The redirect is called to the /edit/ page.
+	// to see: The redirect is called to the /edit/ page and you can save it.
 
 }
