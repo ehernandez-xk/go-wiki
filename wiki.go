@@ -9,12 +9,12 @@ import (
 	"net/http"
 )
 
-//My own handler
-func myhandler(w http.ResponseWriter, r *http.Request) {
-	//If I use r.URL.Path the path comes with /dogs
-	//instead of I use [1:] to ignore the slash
-	//Fprint helps to write to the response
-	fmt.Fprintf(w, "Hi there, I love %s", r.URL.Path[1:])
+//My own view handler
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+	//removes /view/ from the path
+	title := r.URL.Path[len("/view/"):]
+	p, _ := loadPage(title)
+	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
 }
 
 //Page represents a page of the wiki
@@ -41,10 +41,10 @@ func loadPage(title string) (*Page, error) {
 }
 
 func main() {
-	http.HandleFunc("/", myhandler)
+	http.HandleFunc("/view/", viewHandler)
 	http.ListenAndServe(":8080", nil)
 
-	// run the program http://localhost:8080/dogs
-	// to see: Hi there, I love dogs
+	// run the program http://localhost:8080/view/TestPage
+	// to see: TestPage this is a sample page, cool
 
 }
