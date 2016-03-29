@@ -4,7 +4,6 @@ The tutorial https://golang.org/doc/articles/wiki/
 package main
 
 import (
-	"errors"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -17,16 +16,6 @@ var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 //Initial tamplates, Then we can use the ExecuteTemplate method to render a
 //specific template.
 var templates = template.Must(template.ParseFiles("edit.html", "view.html"))
-
-//validates and return the title
-func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	if m == nil {
-		http.NotFound(w, r)
-		return "", errors.New("invalid Page Title")
-	}
-	return m[2], nil // the title is the second subexpression.
-}
 
 // To render the templates
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
@@ -53,12 +42,26 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	*/
 }
 
-//My own view handler
-func viewHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
+/*
+Catching the error condition in each handler introduces a lot of repeated code.
+this function warp each of the handlers does the validation and error checking.
+The returned function is called a closure because it encloses values defined
+outside of it. In this case, the variable fn (the single argument to makeHandler)
+is enclosed by the closure. The variable fn will be one of our save, edit, or view handlers.*/
+func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		m := validPath.FindStringSubmatch(r.URL.Path)
+		if m == nil {
+			http.NotFound(w, r)
+			return
+		}
+		// call the function handler view, save or edit
+		fn(w, r, m[2]) // the title is the second subexpression.
 	}
+}
+
+//My own view handler
+func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := loadPage(title)
 	if err != nil {
 		// If the page doesn¡t exist redirect to /edit/ page
@@ -69,11 +72,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "view", p)
 }
 
-func editHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
+func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := loadPage(title)
 	if err != nil {
 		p = &Page{Title: title}
@@ -82,14 +81,10 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "edit", p)
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
+func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
-	err = p.save()
+	err := p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -123,11 +118,14 @@ func loadPage(title string) (*Page, error) {
 }
 
 func main() {
-	http.HandleFunc("/view/", viewHandler)
-	http.HandleFunc("/edit/", editHandler)
-	http.HandleFunc("/save/", saveHandler)
+	http.HandleFunc("/view/", makeHandler(viewHandler))
+	http.HandleFunc("/edit/", makeHandler(editHandler))
+	http.HandleFunc("/save/", makeHandler(saveHandler))
 	http.ListenAndServe(":8080", nil)
 
+	//http://localhost:8080/view/TestPage
+
+	// invalid regexp
 	// run the program http://localhost:8080/view/test-test
 	// to see: 404 page not found
 
