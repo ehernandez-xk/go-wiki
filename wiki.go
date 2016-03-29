@@ -10,12 +10,16 @@ import (
 	"regexp"
 )
 
+//To organize the templates and data
+var tmplDir = "templates/"
+var dataDir = "data/"
+
 //regular expresion to validate
 var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 
 //Initial tamplates, Then we can use the ExecuteTemplate method to render a
 //specific template.
-var templates = template.Must(template.ParseFiles("edit.html", "view.html"))
+var templates = template.Must(template.ParseFiles(tmplDir+"edit.html", tmplDir+"view.html"))
 
 // To render the templates
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
@@ -102,14 +106,14 @@ type Page struct {
 
 //To save a page in a file
 func (p *Page) save() error {
-	filename := p.Title + ".txt"
+	filename := dataDir + p.Title + ".txt"
 	// writes to the file
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
 //To load a page from the file
 func loadPage(title string) (*Page, error) {
-	filename := title + ".txt"
+	filename := dataDir + title + ".txt"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
