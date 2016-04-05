@@ -1,5 +1,9 @@
 # go-wiki
 
+Drone Status
+
+[![Build Status](https://drone.io/github.com/ehernandez-xk/go-wiki/status.png)](https://drone.io/github.com/ehernandez-xk/go-wiki/latest)
+
 This is small wiki that helps to undertand some Go packages
 - fmt
 - html/template
