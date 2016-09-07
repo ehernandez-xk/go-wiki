@@ -132,6 +132,9 @@ func main() {
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
+	
+	//ListenAndServe starts an HTTP server with a given address and handler. The handler is usually nil,
+	//which means to use DefaultServeMux. Handle and HandleFunc add handlers to DefaultServeMux:
 	http.ListenAndServe(":8080", nil)
 
 	//http://localhost:8080/view/TestPage
