@@ -4,6 +4,7 @@ The tutorial https://golang.org/doc/articles/wiki/
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -132,10 +133,13 @@ func main() {
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
-	
+
 	//ListenAndServe starts an HTTP server with a given address and handler. The handler is usually nil,
 	//which means to use DefaultServeMux. Handle and HandleFunc add handlers to DefaultServeMux:
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println("Error detected", err)
+	}
 
 	//http://localhost:8080/view/TestPage
 
